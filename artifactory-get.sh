@@ -15,18 +15,20 @@ repo=""
 group=""
 artifact=""
 classifier=""
-while getopts r:g:a:c: OPT; do
+extension=""
+while getopts r:g:a:c:e: OPT; do
   case "${OPT}" in
     r) repo="${OPTARG}";;
     g) group="${OPTARG}";;
     a) artifact="${OPTARG}";;
     c) classifier="${OPTARG}";;
+    e) extension="${OPTARG}";;
   esac
 done
 shift $(( $OPTIND - 1 ))
 
 if [ -z "${repo}" ] || [ -z "${group}" ] || [ -z "${artifact}" ]; then
-  usage "-r REPOSITORY -g GROUPID -a ARTIFACTID [-c CLASSIFIER]"
+  usage "-r REPOSITORY -g GROUPID -a ARTIFACTID [-c CLASSIFIER] [-e EXTENSION]"
 fi
 
 # find the latest version and build 
@@ -36,10 +38,15 @@ version=`curl -s $repopath/maven-metadata.xml | grep latest | sed "s/.*<latest>\
 build=`curl -s $repopath/$version/maven-metadata.xml | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
 
 jar=""
+
+if [ -z "${extension}" ]; then
+  extension=jar
+fi
+
 if [ -z "${classifier}" ]; then
-  jar=$artifact-$build.jar
+  jar=$artifact-$build.$extension
 else
-  jar=$artifact-$build-$classifier.jar
+  jar=$artifact-$build-$classifier.$extension
 fi
 
 url=$repopath/$version/$jar
