@@ -43,10 +43,16 @@ if [ -z "${extension}" ]; then
   extension=jar
 fi
 
-if [ -z "${classifier}" ]; then
-  jar=$artifact-$build.$extension
+if [ -z "${build}" ]; then
+  artifactVersion=$artifact-$version
 else
-  jar=$artifact-$build-$classifier.$extension
+  artifactVersion=$artifact-$build
+fi
+
+if [ -z "${classifier}" ]; then
+  jar=$artifactVersion.$extension
+else
+  jar=$artifactVersion-$classifier.$extension
 fi
 
 url=$repopath/$version/$jar
