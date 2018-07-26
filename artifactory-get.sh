@@ -35,7 +35,6 @@ fi
 ga=${group//./\/}/$artifact
 repopath=$repo/$ga
 version=`curl -s $repopath/maven-metadata.xml | grep latest | sed "s/.*<latest>\([^<]*\)<\/latest>.*/\1/"`
-build=`curl -s $repopath/$version/maven-metadata.xml | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
 
 jar=""
 
@@ -43,20 +42,19 @@ if [ -z "${extension}" ]; then
   extension=jar
 fi
 
-if [ -z "${build}" ]; then
-  artifactVersion=$artifact-$version
-else
-  artifactVersion=$artifact-$build
-fi
+
+artifactVersion=$artifact-$version
+artifactSnapShotVersion=$artifact-$version-SNAPSHOT
 
 if [ -z "${classifier}" ]; then
-  jar=$artifactVersion.$extension
+  jar=.$extension
 else
-  jar=$artifactVersion-$classifier.$extension
+  jar=-$classifier.$extension
 fi
 
-url=$repopath/$version/$jar
+url=$repopath/$version/$artifactVersion$jar
+snapshotUrl=$repopath/$version/$artifactSnapShotVersion$jar
 
 # Download
 # echo $url
-curl $url
+curl --fail $url && exit 0
